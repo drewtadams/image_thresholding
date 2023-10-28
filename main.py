@@ -22,7 +22,8 @@ def get_bw_img() -> np.ndarray:
 
     # apply the threshold to the og image
     gray_img = cv2.cvtColor(og_img, cv2.COLOR_BGR2GRAY)
-    bin_img = cv2.threshold(gray_img, bwv_val, bwm_val, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    thresh_strategy = cv2.THRESH_BINARY | cv2.THRESH_OTSU if int(is_otsu.get()) else cv2.THRESH_BINARY
+    bin_img = cv2.threshold(gray_img, bwv_val, bwm_val, thresh_strategy)[1]
 
     # regenerate the side-by-side images
     og_counted = cv2.resize(cv2.cvtColor(highlighted_img, cv2.COLOR_BGR2RGB), resize_size)
@@ -83,6 +84,8 @@ bw_thresh_val = ttk.Entry(bw_thresh_frame, width=3, validate="key", validatecomm
 bw_thresh_max = ttk.Entry(bw_thresh_frame, width=3, validate="key", validatecommand=(validate_input, '%d', '%W', '%P', '%v'))
 bw_thresh_val.insert(65, '65')
 bw_thresh_max.insert(255, '255')
+is_otsu = tk.StringVar()
+is_otsu.set(0)
 
 # rgb frame
 rgb_thresh_frame = tk.Frame(root)
@@ -119,6 +122,9 @@ ttk.Label(bw_thresh_frame, text='BLACK & WHITE (val | max):').grid(row=0, column
 bw_thresh_val.grid(row=0, column=1)
 ttk.Label(bw_thresh_frame, text='|').grid(row=0, column=2)
 bw_thresh_max.grid(row=0, column=3)
+ttk.Radiobutton(bw_thresh_frame, text='Standard', variable=is_otsu, value=0).grid(row=1, column=0)
+ttk.Radiobutton(bw_thresh_frame, text='OTSU', variable=is_otsu, value=1).grid(row=1, column=1)
+
 
 # rgb frame layout
 ttk.Label(rgb_thresh_frame, text='RED (val | max):').grid(row=0, column=0)
