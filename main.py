@@ -22,7 +22,7 @@ def get_bw_img() -> np.ndarray:
 
     # apply the threshold to the og image
     gray_img = cv2.cvtColor(og_img, cv2.COLOR_BGR2GRAY)
-    bin_img = cv2.threshold(gray_img, bwv_val, bwm_val, cv2.THRESH_BINARY)[1]
+    bin_img = cv2.threshold(gray_img, bwv_val, bwm_val, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
     # regenerate the side-by-side images
     og_counted = cv2.resize(cv2.cvtColor(highlighted_img, cv2.COLOR_BGR2RGB), resize_size)
@@ -51,7 +51,6 @@ def get_rgb_img() -> np.ndarray:
 
 
 def refresh_img():
-    print(f'is_bw: {is_bw.get()}, {type(int(is_bw.get()))}')
     refreshed_img = get_bw_img() if int(is_bw.get()) else get_rgb_img()
 
     # recreate the image widget
