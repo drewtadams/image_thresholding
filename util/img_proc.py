@@ -7,6 +7,17 @@ CLOSE = 0
 OPEN = 1
 
 
+def apply_clahe(img: np.ndarray, clip_limit: float = 2.0, title_grid_size: Tuple[int, int] = (8, 8)):
+    """
+    applies CLAHE to each image in [imgs] and returns the updated list
+    :param img: image to apply CLAHE
+    :param clip_limit: contrast limiting threshold value
+    :param title_grid_size: grid size for the equalization grid
+    :return: updated image
+    """
+    return cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=title_grid_size).apply(img)
+
+
 def apply_img_mask(
         mask_color: Union[int, Tuple],
         imgs: List,
@@ -29,8 +40,8 @@ def apply_img_mask(
         _, proc_img = cv2.threshold(proc_img, threshold, 255, cv2.THRESH_BINARY)  # black and white
 
         # apply open -> close to remove noise then fill line gaps
-        proc_img = open_close(proc_img, OPEN)
-        proc_img = open_close(proc_img, CLOSE)
+        proc_img = open_close(proc_img, OPEN, 10)
+        proc_img = open_close(proc_img, CLOSE, 10)
 
         #
         cur_min_contour = tuple()
@@ -72,11 +83,9 @@ def open_close(img: np.ndarray, proc_enum: int, open_close_iterations: int = 5) 
     img_copy = img.copy()
 
     # primary function call (dilate or erode)
-    for i in range(open_close_iterations):
-        img_copy = proc_funcs[proc_enum](img_copy, None, iterations=i+1)
+    img_copy = proc_funcs[proc_enum](img_copy, None, iterations=open_close_iterations)
 
     # secondary function call (erode or dilate)
-    for i in range(open_close_iterations):
-        img_copy = proc_funcs[(proc_enum + 1) % len(proc_funcs)](img_copy, None, iterations=i+1)
+    img_copy = proc_funcs[(proc_enum + 1) % len(proc_funcs)](img_copy, None, iterations=open_close_iterations)
 
     return img_copy
